@@ -2,4 +2,4 @@
 
 OBJDIR=obj
 
-java -cp ${OBJDIR} Main $1 
+java -cp ${OBJDIR} Main "$1"
