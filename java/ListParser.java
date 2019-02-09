@@ -6,7 +6,9 @@ public class ListParser extends Parser {
     public boolean list() {
         boolean rc;
         rc = match(ListLexer.LBRACK); 
+        if (!rc) return rc;
         rc = elements(); 
+        if (!rc) return rc;
         rc = match(ListLexer.RBRACK);
         return rc;
     }
@@ -15,7 +17,7 @@ public class ListParser extends Parser {
         boolean rc;
         rc = element();
         while (lookahead.type == ListLexer.COMMA) {
-            rc = match(ListLexer.COMMA); 
+            match(ListLexer.COMMA); 
             rc = element();
         }
         return rc;
