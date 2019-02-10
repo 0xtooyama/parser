@@ -24,20 +24,25 @@ public class ListLexer extends Lexer {
                 case ' '  :
                 case '\t' :
                 case '\n' :
-                case '\r' : WS();
-                            continue;
+                case '\r' :
+                    WS();
+                    continue;
 
-                case ','  : consume();
-                            return new Token(COMMA, ",");
+                case ',' :
+                    consume();
+                    return new Token(COMMA, ",");
 
-                case '['  : consume();
-                            return new Token(LBRACK, "[");
+                case '[' :
+                    consume();
+                    return new Token(LBRACK, "[");
 
-                case ']'  : consume();
-                            return new Token(RBRACK, "]");
+                case ']' :
+                    consume();
+                    return new Token(RBRACK, "]");
 
-                default   : if (isLETTER()) return NAME();
-                            throw new Error("invalid character: " + c);
+                default :
+                    if (isLETTER()) return NAME();
+                    throw new Error("invalid character: " + c);
             }
         }
         return new Token(EOF_TYPE, "<EOF>");
