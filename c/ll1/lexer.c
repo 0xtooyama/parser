@@ -47,7 +47,7 @@ static void ignore(char **str) {
 }
 
 Token next_token(char **str) {
-    do {
+    while(**str) {
         switch (*str[0]) {
             case ' ' :
                 ignore(str);
@@ -65,10 +65,6 @@ Token next_token(char **str) {
                 (*str)++;
                 return generate_token(COMMA, ",\0"); 
 
-            case '\0' :
-                (*str)++;
-                return generate_token(END, "<END>\0"); 
-
             default :
                 if (is_char(*str[0])) {
                     return proc_char(str);
@@ -77,5 +73,6 @@ Token next_token(char **str) {
                     exit(1);
                 }
         }
-    } while (**str);
+    }
+    return generate_token(END, "<END>\0"); 
 }
