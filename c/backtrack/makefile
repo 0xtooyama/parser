@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -std=c99
 OBJDIR = obj
-SRCS = main.c lexer.c parser.c
+SRCS = main.c lexer.c parser.c token.c marker.c
 OBJS = $(SRCS:%.c=%.o)
 TARGET = parser
 
@@ -16,6 +16,12 @@ lexer.o : lexer.c
 	$(CC) $(CFLAGS) -c $< -o $(OBJDIR)/$@
 
 parser.o : parser.c parser.h lexer.h
+	$(CC) $(CFLAGS) -c $< -o $(OBJDIR)/$@
+
+token.o : token.c token.h
+	$(CC) $(CFLAGS) -c $< -o $(OBJDIR)/$@
+
+marker.o : marker.c marker.h
 	$(CC) $(CFLAGS) -c $< -o $(OBJDIR)/$@
 
 .PHONY : clean

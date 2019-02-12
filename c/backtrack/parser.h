@@ -11,11 +11,20 @@ typedef struct {
     Marker *marker;
 } ParserInfo;
 
-ParserInfo * init_parser(char **, int);
-int parse_list(char **, ParserInfo *);
-static int elements(char **, ParserInfo *);
-static int element(char **, ParserInfo *);
-static int match(int , char **, ParserInfo *);
+ParserInfo * init_parser(char *);
+void print_parser_info(ParserInfo *);
+int stat(ParserInfo *);
+static int is_list(ParserInfo *);
+static int is_assign(ParserInfo *);
+static void mark(ParserInfo *);
+static void release(ParserInfo *);
+static int assign(ParserInfo *);
+static int list(ParserInfo *);
+static int elements(ParserInfo *);
+static int element(ParserInfo *);
+static int match(int , ParserInfo *);
+static int is_backtrack(ParserInfo *);
+static void sync(int, ParserInfo *);
 static int gettype(int, ParserInfo *);
 
 #endif

@@ -1,4 +1,3 @@
-#include "lexer.h"
 #include "parser.h"
 
 #include <stdio.h>
@@ -6,11 +5,11 @@
 
 void parser(char **argv) {
     char *str = argv[1];
-    int k = 2;
-    ParserInfo *pi = init_parser(str, k);
-    int rc = parse_list(&str, pi);
-    if (rc) printf("list\n");
-    else printf("not list\n");
+    ParserInfo *pi = init_parser(str);
+    int rc = stat(pi);
+    if (rc == 1) printf("list\n");
+    else if (rc == 2) printf("assign\n");
+    else printf("not sentence\n");
     free(pi);
 }
 

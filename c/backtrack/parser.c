@@ -1,8 +1,9 @@
 #include "parser.h"
 #include "token.h"
 #include "lexer.h"
-#include "marker"
+#include "marker.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 
 ParserInfo * init_parser(char *input) {
@@ -13,119 +14,149 @@ ParserInfo * init_parser(char *input) {
 
     pi->head = NULL;
     Token token = next_token(&(pi->input_ptr));
-    add_token(pi->head, token);
+    add_token(&(pi->head), token);
 
     return pi;
 }
 
+void print_parser_info(ParserInfo *pi) {
+    printf("input_ptr : %s\n", pi->input_ptr);
+    printf("p         : %d\n", pi->p);
+}
+
 int stat(ParserInfo *pi) {
+    int rc;
     if (is_list(pi)) {
-        list(pi);
+        rc = list(pi);
+        if (!rc) return rc;
         match(END, pi);
-    } else if (is_asign(pi)) {
-        assign(pi);
+        rc = 1;
+    } else if (is_assign(pi)) {
+        rc = assign(pi);
+        if (!rc) return rc;
         match(END, pi);
+        rc = 2;
     } else {
         return 0;
     }
+    return rc;
 }
 
-int is_list(ParserInfo *pi) {
+static int is_list(ParserInfo *pi) {
     mark(pi);
     int rc = list(pi);
     if (!rc) goto end;
     rc = match(END, pi);
-    if (!rc) goto end;
-    return 1;
 end:
     release(pi);
-    return 0;
+    return rc;
 }
 
-int is_assign(ParserInfo *pi) {
+static int is_assign(ParserInfo *pi) {
     mark(pi);
-    int rc = assign(pi);
+    int rc;
+    rc = assign(pi);
     if (!rc) goto end;
     rc = match(END, pi);
-    if (!rc) goto end;
-    return 1;
 end:
     release(pi);
-    return 0;
+    return rc;
 }
 
-void mark(ParserInfo *pi) {
+static void mark(ParserInfo *pi) {
     push(pi->marker, pi->p);
 }
 
-void release(ParserInfo *pi) {
+static void release(ParserInfo *pi) {
     pi->p = pop(pi->marker);
+}
+
+static int assign(ParserInfo *pi) {
+    int rc;
+    rc = list(pi);
+    if (!rc) return 0;
+    rc = match(EQUALS, pi);
+    if (!rc) return 0;
+    rc = list(pi);
+    return rc;
 }
 
 static int list(ParserInfo *pi) {
     int rc;
     rc = match(LBRACK, pi); 
     if (!rc) return 0;
-    rc = elements(str, pi); 
+    rc = elements(pi); 
     if (!rc) return 0;
     rc = match(RBRACK, pi);
     return rc;
 }
 
-static int elements(char **str, ParserInfo *pi) {
+static int elements(ParserInfo *pi) {
     int rc;
-    rc = element(str, pi);
-    if ((pi->token)[pi->p].type == COMMA) {
-        match(COMMA, str, pi);
-        rc = element(str, pi);
+    rc = element(pi);
+    if (!rc) return rc;
+    while (gettype(1, pi) == COMMA) {
+        rc = match(COMMA, pi);
+        if (!rc) return rc;
+        rc = element(pi);
     }
     return rc;
 }
 
-static int element(char **str, ParserInfo *pi) {
+static int element(ParserInfo *pi) {
     int rc;
     if (gettype(1, pi) == NAME && gettype(2, pi) == EQUALS) {
-        rc = match(NAME, str, pi);
+        rc = match(NAME, pi);
         if (!rc) return 0;
-        rc = match(EQUALS, str, pi);
+        rc = match(EQUALS, pi);
         if (!rc) return 0;
-        rc = match(NAME, str, pi);
-    } else if ((pi->token)[pi->p].type == NAME) {
-        rc = match(NAME, str, pi);
-    } else if ((pi->token)[pi->p].type == LBRACK) {
-        rc = list(str, pi);
+        rc = match(NAME, pi);
+    } else if (gettype(1, pi) == NAME) {
+        rc = match(NAME, pi);
+    } else if (gettype(1, pi) == LBRACK) {
+        rc = list(pi);
     } else {
         rc = 0;
-        //puts("error1");
-        //exit(1);
     }
     return rc;
 }
 
 static int match(int type, ParserInfo *pi) {
-    if (type == get_type(1, pi)) {
+    if (type == gettype(1, pi)) {
         // next token
         (pi->p)++;
-        // if (not backtrack) p reset && head reset
-        if (
-        Token token = next_token(&(pi->input_ptr));
-        add_token(pi->head, token);
-    }
-
-    Token *token = pi->token;
-    int p = pi->p;
-
-    if (type == token[p].type) {
-        token[p] = next_token(str);
-        pi->p = ++p % pi->k;
+        if (pi->p == token_size(pi->head) && !is_backtrack(pi)) {
+            pi->p = 0;
+            clear_token(pi->head);
+        }
+        sync(1, pi);
         return 1;
     } else {
         return 0;
     }
 }
 
+static int is_backtrack(ParserInfo *pi) {
+    if (pi->marker->p > 0) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+static void sync(int n, ParserInfo *pi) {
+//printf("token_size : %d\n", token_size(pi->head));
+    if (pi->p + n - 1 > token_size(pi->head) - 1) {
+        n = (pi->p + n - 1) - (token_size(pi->head) - 1);
+        for (int i = 0; i < n; i++) {
+            Token t = next_token(&(pi->input_ptr));
+            add_token(&(pi->head), t);
+        }
+    }
+}
+
 static int gettype(int n, ParserInfo *pi) {
-    Token *token = pi->token;
-    int p = pi->p;
-    return token[(p + n - 1) % pi->k].type;
+    sync(n, pi);
+    Token *token = get_token(pi->head, pi->p + n - 1);
+    return token->type;
 }
