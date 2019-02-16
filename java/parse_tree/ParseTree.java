@@ -16,7 +16,7 @@ public abstract class ParseTree {
         return t;
     }
 
-    public void add(ParseTree value) {
+    public void addChild(ParseTree value) {
         if (children == null) children = new ArrayList<ParseTree>(); 
         children.add(value);
     }

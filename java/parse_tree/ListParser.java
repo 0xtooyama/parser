@@ -11,7 +11,7 @@ public class ListParser extends Parser {
         list_memo = new HashMap<Integer, Integer>();
     }
 
-    public boolean match(int x) {
+    public boolean match(int x) throws Exception {
         currentNode.addChild(LT(1));
         boolean rc = super.match(x);
         return rc;
@@ -80,7 +80,7 @@ System.out.println("[end]   speculate_stat_alt2()");
 
     private boolean assign() {
         RuleNode r = new RuleNode("assign");
-        currentNode.add(r);
+        currentNode.addChild(r);
         ParseTree _save = currentNode;
         currentNode = r;
 
@@ -116,7 +116,7 @@ System.out.println("\tmemo p=" + p);
 
     private boolean _list() {
         RuleNode r = new RuleNode("list");
-        currentNode.add(r);
+        currentNode.addChild(r);
         ParseTree _save = currentNode;
         currentNode = r;
 
@@ -140,7 +140,7 @@ System.out.println("\t[call]  _list()");
 
     private boolean elements() {
         RuleNode r = new RuleNode("elements");
-        currentNode.add(r);
+        currentNode.addChild(r);
         ParseTree _save = currentNode;
         currentNode = r;
 
@@ -162,7 +162,7 @@ System.out.println("\t[call]  _list()");
 
     private boolean element() {
         RuleNode r = new RuleNode("element");
-        currentNode.add(r);
+        currentNode.addChild(r);
         ParseTree _save = currentNode;
         currentNode = r;
 
