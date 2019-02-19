@@ -14,6 +14,6 @@ public class Token {
 
     public String toString() {
         String tname = ListLexer.tokenNames[type];
-        return "<'" + text + "'," + tname + ">";
+        return text;
     }
 }
